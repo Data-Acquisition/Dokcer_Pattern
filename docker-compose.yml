@@ -1,0 +1,50 @@
+version: '3.10'
+services:
+  postgres:
+    image: postgres:14.8-alpine3.18
+    environment:
+      POSTGRES_DB: "habrdb"
+      POSTGRES_USER: "habrpguser"
+      POSTGRES_PASSWORD: "pgpwd4habr"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ../2. Init Database:/docker-entrypoint-initdb.d
+      - habrdb-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  rabbitmq:
+    image: "rabbitmq:management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  worker:
+    build:
+      context: .
+    env_file: .env
+    volumes:
+      - .:/app
+    depends_on:
+      - redis_server
+    command: sh -c "celery -A celery_tasks.app_worker worker -l INFO --pool=solo"
+
+  backend:
+    build:
+      context: .
+    ports:
+      - "3000:3000"
+    env_file: .env
+    volumes:
+      - .:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  redis_server:
+    container_name: redis
+    image: redis
+
+volumes:
+  app-db-data:
+  root-home:
