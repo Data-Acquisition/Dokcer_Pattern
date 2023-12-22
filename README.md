@@ -71,6 +71,7 @@
  - `docker network prune` - удаление неиспользуемых сетей
  - `docker system prune -a`  - удаление не используемых объектов (выполнять всегда перед тем как пересобираете образы)
  - `docker volume prune -a`  - удаление не используемых volume
+ - `docker-compose up -d --build` - сборка docker-compose
 
 #### [Подробная шпаргалка по командам](https://habr.com/ru/companies/flant/articles/336654/)
 
